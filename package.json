@@ -1,0 +1,14 @@
+{
+  "name": "friends-of-mine",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Friends Of Mine cafe online ordering and delivery platform",
+  "scripts": {
+    "start": "vercel dev",
+    "build": "node -e \"console.log('No build step required for this static Vercel app.')\""
+  },
+  "dependencies": {
+    "axios": "^1.7.7",
+    "firebase-admin": "^12.4.0"
+  }
+}

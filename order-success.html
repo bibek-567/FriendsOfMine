@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Order Success | Friends Of Mine</title>
+    <link rel="stylesheet" href="/css/style.css" />
+  </head>
+  <body>
+    <main class="container" style="padding-top:60px; padding-bottom:80px;">
+      <div class="form-shell" style="text-align:center;">
+        <h1 style="margin-bottom:8px;">Order placed successfully!</h1>
+        <p style="color:#4b5563;">Your cafe order is being prepared and a delivery rider will be assigned soon.</p>
+        <div class="map-shell" id="trackingMap" style="margin-top:18px; min-height:260px; display:grid; place-items:center; color:#0f172a;">
+          Live delivery map is loading...
+        </div>
+        <div style="margin-top:20px; display:flex; justify-content:center; gap:12px; flex-wrap:wrap;">
+          <button class="btn btn-primary" onclick="window.location.href='/'">Back to menu</button>
+          <button class="btn btn-secondary" onclick="window.location.href='/my-orders'">View my orders</button>
+        </div>
+      </div>
+    </main>
+
+    <script src="/js/tracker.js"></script>
+    <script>
+      const orderId = new URLSearchParams(window.location.search).get('orderId') || 'FOM-ORDER';
+      document.getElementById('trackingMap').innerHTML = '<div style="padding:24px;">Tracking order <strong>' + orderId + '</strong> will appear here with a live map and driver updates.</div>';
+    </script>
+  </body>
+</html>

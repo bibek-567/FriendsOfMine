@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Friends Of Mine Cafe</title>
+    <link rel="stylesheet" href="/css/style.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="container navbar">
+        <div class="brand">
+          <div class="brand-mark">F</div>
+          <span>Friends Of Mine</span>
+        </div>
+        <nav class="nav-links">
+          <a href="#menu">Menu</a>
+          <a href="/my-orders">My Orders</a>
+          <a href="/checkout">Checkout</a>
+        </nav>
+        <div class="nav-actions">
+          <button class="btn btn-secondary" onclick="window.location.href='/my-orders'">My Orders</button>
+          <button class="btn btn-primary" onclick="window.location.href='/checkout'">Order Now</button>
+        </div>
+      </div>
+    </header>
+
+    <main>
+      <section class="hero">
+        <div class="container hero-grid">
+          <div class="hero-copy">
+            <span class="badge">Fresh • Fast • Friendly</span>
+            <h1>Fresh cafe food, delivered fast in Mahendranagar.</h1>
+            <p>
+              Enjoy premium coffee, quick bites, hearty meals, and comfort desserts — all built for smooth online ordering and zero-hassle delivery.
+            </p>
+            <div class="hero-actions">
+              <button class="btn btn-primary" onclick="window.location.href='/checkout'">Place an Order</button>
+              <button class="btn btn-secondary" onclick="window.location.href='/my-orders'">Track Orders</button>
+            </div>
+            <div class="badges">
+              <span class="badge">Within 5 km</span>
+              <span class="badge">COD available</span>
+              <span class="badge">Zero login required</span>
+            </div>
+          </div>
+
+          <div class="hero-panel">
+            <div class="menu-card">
+              <img src="https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=1000&q=80" alt="Cafe special" />
+              <div class="meta">
+                <div>
+                  <strong>Chef's Signature Combo</strong>
+                  <small>Breakfast + Coffee</small>
+                </div>
+                <strong>NPR 700</strong>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="content-area" id="menu">
+        <div class="container">
+          <div class="category-bar">
+            <button class="category-pill active">All</button>
+            <button class="category-pill">Coffee</button>
+            <button class="category-pill">Breakfast</button>
+            <button class="category-pill">Lunch</button>
+            <button class="category-pill">Fast Food</button>
+            <button class="category-pill">Dessert</button>
+          </div>
+
+          <div id="productGrid" class="product-grid"></div>
+        </div>
+      </section>
+    </main>
+
+    <aside class="cart-drawer" aria-label="Shopping cart">
+      <div class="cart-header">
+        <h3>Your Cart</h3>
+        <button class="btn btn-secondary" onclick="window.location.href='/checkout'">Checkout</button>
+      </div>
+      <div id="cartItems"></div>
+      <div class="total-row">
+        <span>Subtotal</span>
+        <span id="cartTotal">NPR 0</span>
+      </div>
+    </aside>
+
+    <script src="/js/tracker.js"></script>
+    <script src="/js/cart.js"></script>
+  </body>
+</html>

@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>My Orders | Friends Of Mine</title>
+    <link rel="stylesheet" href="/css/style.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="container navbar">
+        <div class="brand">
+          <div class="brand-mark">F</div>
+          <span>Friends Of Mine</span>
+        </div>
+        <nav class="nav-links">
+          <a href="/">Home</a>
+          <a href="/checkout">Checkout</a>
+        </nav>
+      </div>
+    </header>
+
+    <main class="container" style="padding-top:40px; padding-bottom:80px;">
+      <div class="form-shell">
+        <h2>My Orders</h2>
+        <div class="table-wrap">
+          <table class="orders-table">
+            <thead>
+              <tr>
+                <th>Order ID</th>
+                <th>Name</th>
+                <th>Total</th>
+                <th>Status</th>
+                <th>Time</th>
+              </tr>
+            </thead>
+            <tbody id="ordersTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </main>
+
+    <script src="/js/tracker.js"></script>
+    <script src="/js/orders-list.js"></script>
+  </body>
+</html>

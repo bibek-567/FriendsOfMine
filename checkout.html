@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Checkout | Friends Of Mine</title>
+    <link rel="stylesheet" href="/css/style.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="container navbar">
+        <div class="brand">
+          <div class="brand-mark">F</div>
+          <span>Friends Of Mine</span>
+        </div>
+        <nav class="nav-links">
+          <a href="/">Home</a>
+          <a href="/my-orders">My Orders</a>
+        </nav>
+      </div>
+    </header>
+
+    <main class="container">
+      <div class="form-shell">
+        <h2>Complete Your Order</h2>
+        <div class="grid-2">
+          <form id="checkoutForm" class="checkout-form">
+            <div class="grid-2">
+              <div class="form-group">
+                <label>Name</label>
+                <input type="text" name="name" placeholder="Your name" required />
+              </div>
+              <div class="form-group">
+                <label>Phone</label>
+                <input type="tel" name="phone" placeholder="98XXXXXXXX" required />
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label>Email</label>
+              <input type="email" name="email" placeholder="you@example.com" />
+            </div>
+
+            <div class="form-group">
+              <label>Delivery Address</label>
+              <textarea name="address" rows="4" placeholder="Street, ward, landmark" required></textarea>
+            </div>
+
+            <div class="grid-2">
+              <div class="form-group">
+                <label>Latitude</label>
+                <input id="customerLat" type="text" name="lat" placeholder="Auto detect" />
+              </div>
+              <div class="form-group">
+                <label>Longitude</label>
+                <input id="customerLng" type="text" name="lng" placeholder="Auto detect" />
+              </div>
+            </div>
+
+            <div style="display:flex; gap:12px; margin-top:16px; flex-wrap:wrap;">
+              <button type="button" id="detectLocation" class="btn btn-secondary">Detect My Location</button>
+              <span id="locationStatus" style="color:#4b5563; align-self:center;">Please confirm you are within 5 km.</span>
+            </div>
+          </form>
+
+          <aside class="summary-box">
+            <h3>Order Summary</h3>
+            <ul id="checkoutItems" class="order-list"></ul>
+            <div class="total-row">
+              <span>Total</span>
+              <span id="checkoutTotal">NPR 0</span>
+            </div>
+            <div style="display:flex; flex-direction:column; gap:12px; margin-top:16px;">
+              <button id="codButton" class="btn btn-primary" type="button">Pay on Delivery</button>
+              <button id="esewaButton" class="btn btn-secondary" type="button">Pay with eSewa</button>
+              <button id="khaltiButton" class="btn btn-secondary" type="button">Pay with Khalti</button>
+            </div>
+          </aside>
+        </div>
+      </div>
+    </main>
+
+    <script src="/js/tracker.js"></script>
+    <script src="/js/checkout.js"></script>
+  </body>
+</html>

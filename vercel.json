@@ -1,0 +1,34 @@
+{
+  "version": 2,
+  "cleanUrls": true,
+  "rewrites": [
+    { "source": "/", "destination": "/public/index.html" },
+    { "source": "/index", "destination": "/public/index.html" },
+    { "source": "/my-orders", "destination": "/public/my-orders.html" },
+    { "source": "/checkout", "destination": "/public/checkout.html" },
+    { "source": "/order-success", "destination": "/public/order-success.html" },
+    { "source": "/driver", "destination": "/public/driver.html" },
+    { "source": "/sw.js", "destination": "/public/sw.js" },
+    { "source": "/api/(.*)", "destination": "/api/$1" }
+  ],
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        { "key": "Cache-Control", "value": "public, max-age=0, must-revalidate" }
+      ]
+    },
+    {
+      "source": "/css/(.*)",
+      "headers": [
+        { "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }
+      ]
+    },
+    {
+      "source": "/js/(.*)",
+      "headers": [
+        { "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }
+      ]
+    }
+  ]
+}

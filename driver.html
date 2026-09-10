@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Driver Dispatch | Friends Of Mine</title>
+    <link rel="stylesheet" href="/css/style.css" />
+  </head>
+  <body>
+    <main class="container" style="padding-top:60px; padding-bottom:80px;">
+      <div class="form-shell">
+        <h2>Driver Tracking Console</h2>
+        <div class="grid-2">
+          <div class="form-group">
+            <label>Order ID</label>
+            <input id="driverOrderId" type="text" value="FOM-ORDER-001" />
+          </div>
+          <div class="form-group">
+            <label>Driver Name</label>
+            <input id="driverName" type="text" value="Driver 01" />
+          </div>
+        </div>
+        <div style="margin-top:18px; display:flex; gap:12px; flex-wrap:wrap;">
+          <button id="startTracking" class="btn btn-primary" type="button">Start GPS Tracking</button>
+          <button id="stopTracking" class="btn btn-secondary" type="button">Stop</button>
+        </div>
+        <div style="margin-top:18px; background:rgba(144,224,239,0.12); border-radius:18px; padding:16px; min-height:120px;">
+          <strong>Status:</strong>
+          <div id="driverStatus">Idle</div>
+        </div>
+      </div>
+    </main>
+
+    <script src="/js/tracker.js"></script>
+    <script>
+      let watchId = null;
+      const statusEl = document.getElementById('driverStatus');
+
+      function updateStatus(text) {
+        statusEl.textContent = text;
+      }
+
+      function sendSignal(position) {
+        const payload = {
+          orderId: document.getElementById('driverOrderId').value,
+          driverName: document.getElementById('driverName').value,
+          status: 'tracking',
+          lat: position.coords.latitude,
+          lng: position.coords.longitude,
+          location: 'Mahendranagar, Nepal'
+        };
+
+        fetch('/api/driver-signal', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        }).then(() => updateStatus(`Tracking active: ${payload.lat}, ${payload.lng}`));
+      }
+
+      document.getElementById('startTracking').addEventListener('click', () => {
+        if (!navigator.geolocation) {
+          updateStatus('Geolocation is unsupported in this browser.');
+          return;
+        }
+
+        updateStatus('Starting live GPS tracking...');
+        watchId = navigator.geolocation.watchPosition(sendSignal, () => updateStatus('Unable to access device location.'), {
+          enableHighAccuracy: true,
+          timeout: 20000,
+          maximumAge: 10000
+        });
+      });
+
+      document.getElementById('stopTracking').addEventListener('click', () => {
+        if (watchId) navigator.geolocation.clearWatch(watchId);
+        updateStatus('Tracking halted.');
+      });
+    </script>
+  </body>
+</html>
