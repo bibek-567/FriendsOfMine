@@ -25,7 +25,7 @@ module.exports = async (req, res) => {
       customerName: payload.customerName || 'Guest Customer',
       customerPhone: payload.customerPhone || '9800000000',
       customerEmail: payload.customerEmail || '',
-      deliveryLocation: payload.deliveryLocation || 'Mahendranagar, Nepal',
+      deliveryLocation: payload.deliveryLocation || 'Dhangadi, Nepal',
       totalAmount: Number(payload.totalAmount || payload.amount || 0),
       paymentMethod: 'cod',
       status: 'pending',

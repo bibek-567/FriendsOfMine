@@ -28,7 +28,7 @@ function initializeFirestore() {
   return admin.firestore();
 }
 
-async function createUniqueOrderCode() {
+async function createUniqueOrderCode(payload = {}) {
   const firestore = initializeFirestore();
 
   for (let attempt = 0; attempt < 10; attempt += 1) {
@@ -37,6 +37,7 @@ async function createUniqueOrderCode() {
       await firestore.collection('orders').doc(orderCode).create({
         orderId: orderCode,
         status: 'reserving',
+        deviceToken: payload.deviceToken || 'local-device',
         createdAt: new Date().toISOString()
       });
       return orderCode;
@@ -50,11 +51,11 @@ async function createUniqueOrderCode() {
 
 async function createOrder(payload, paymentMethod) {
   return {
-    orderId: await createUniqueOrderCode(),
+    orderId: await createUniqueOrderCode(payload),
     customerName: payload.customerName || 'Guest Customer',
     customerPhone: payload.customerPhone || '9800000000',
     customerEmail: payload.customerEmail || '',
-    deliveryLocation: payload.deliveryLocation || 'Mahendranagar, Nepal',
+    deliveryLocation: payload.deliveryLocation || 'Dhangadi, Nepal',
     totalAmount: Number(payload.totalAmount || payload.amount || 0),
     paymentMethod,
     status: 'pending',
@@ -89,7 +90,7 @@ function safeEqual(left, right) {
 
 async function postKitchenWebhook(order) {
   const webhookUrl = String(process.env.DISCORD_KITCHEN_WEBHOOK || '').trim();
-  if (!webhookUrl || webhookUrl === 'Your-Info-Here') {
+  if (!webhookUrl || webhookUrl === 'https://discord.com/api/webhooks/1547510503272615977/_59NikJZLfoLr6N-txffPMPkI5JLX4X_I4t7VL6Fk9tgiC6UlwPBHaXTDKwD8dVLplWi') {
     console.warn('Discord kitchen webhook is not configured.');
     return false;
   }
@@ -99,7 +100,7 @@ async function postKitchenWebhook(order) {
     const phone = String(order.customerPhone || '').replace(/[^\d+]/g, '');
     const mapQuery = order.lat && order.lng
       ? `${order.lat},${order.lng}`
-      : order.deliveryLocation || 'Mahendranagar, Nepal';
+      : order.deliveryLocation || 'Dhangadi, Nepal';
     const itemLines = (order.items || [])
       .map((item) => `${item.name} x${item.qty}`)
       .join('\n') || 'No item details';
@@ -123,7 +124,7 @@ async function postKitchenWebhook(order) {
         fields: [
           { name: 'Order Code', value: `#${order.orderId}`, inline: true },
           { name: 'Phone', value: order.customerPhone || 'N/A', inline: true },
-          { name: 'Location', value: order.deliveryLocation || 'Mahendranagar', inline: false }
+          { name: 'Location', value: order.deliveryLocation || 'Dhangadi', inline: false }
         ]
       }],
       components: [{

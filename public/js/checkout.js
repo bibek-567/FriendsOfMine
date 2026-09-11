@@ -85,7 +85,7 @@ async function placeOrder(paymentMethod = 'cod') {
     customerName: formData.get('name') || 'Guest Customer',
     customerPhone: formData.get('phone') || '9800000000',
     customerEmail: formData.get('email') || '',
-    deliveryLocation: formData.get('address') || 'Mahendranagar, Nepal',
+    deliveryLocation: formData.get('address') || 'Dhangadi, Nepal',
     paymentMethod,
     totalAmount: getOrderSummary().total,
     items: getOrderSummary().cart,

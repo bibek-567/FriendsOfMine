@@ -22,7 +22,7 @@ module.exports = async (req, res) => {
       content: `🚚 Delivery tracking started for order ${payload.orderId || 'Unknown'}`,
       embeds: [{
         title: 'Driver signal received',
-        description: `Location: ${payload.location || 'Mahendranagar'}\nDriver: ${payload.driverName || 'Driver'}\nStatus: ${payload.status || 'tracking'}`,
+        description: `Location: ${payload.location || 'Dhangadi'}\nDriver: ${payload.driverName || 'Driver'}\nStatus: ${payload.status || 'tracking'}`,
         color: 3447003,
         fields: [
           { name: 'Latitude', value: String(payload.lat || 0), inline: true },
