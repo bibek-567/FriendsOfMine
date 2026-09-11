@@ -394,6 +394,15 @@ button { -webkit-tap-highlight-color: transparent; }
 .status-pill { display: inline-block; border-radius: 999px; padding: 0.35rem 0.7rem; background: var(--ocean-100); color: var(--ocean-900); font-size: 0.8rem; font-weight: 800; }
 .map-shell { min-height: 320px; overflow: hidden; border: 1px solid rgba(8, 126, 164, 0.2); border-radius: 18px; background: #d9f3f8; }
 
+.site-footer { margin-top: 36px; padding: 46px 0 20px; background: var(--ocean-950); color: #d8f5f8; }
+.footer-grid { display: grid; grid-template-columns: 1.4fr 1fr 1fr; gap: 36px; }
+.footer-brand { color: var(--white); font-family: Georgia, "Times New Roman", serif; font-size: 1.5rem; font-weight: 700; }
+.site-footer p { max-width: 260px; margin: 10px 0 0; color: #9ecbd3; line-height: 1.6; }
+.site-footer h2 { margin: 0 0 12px; color: var(--white); font-family: inherit; font-size: 0.82rem; letter-spacing: 0.1em; text-transform: uppercase; }
+.site-footer a, .site-footer span { display: block; width: fit-content; margin: 8px 0; color: #bfe7ec; font-size: 0.92rem; }
+.site-footer a:hover, .site-footer a:focus-visible { color: var(--white); text-decoration: underline; text-underline-offset: 3px; }
+.footer-bottom { margin-top: 34px; padding-top: 16px; border-top: 1px solid rgba(216, 245, 248, 0.18); color: #8fbfc8; font-size: 0.8rem; }
+
 @media (max-width: 860px) {
   .hero { padding-top: 52px; }
   .hero-grid, .grid-2 { grid-template-columns: 1fr; }
@@ -411,4 +420,5 @@ button { -webkit-tap-highlight-color: transparent; }
   .form-shell { margin-top: 20px; padding: 22px 16px; border-radius: 18px; }
   .cart-drawer { right: 14px; bottom: 14px; }
   .menu-card img { height: 220px; }
+  .footer-grid { grid-template-columns: 1fr; gap: 24px; }
 }
