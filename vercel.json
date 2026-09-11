@@ -8,8 +8,7 @@
     { "source": "/checkout", "destination": "/public/checkout.html" },
     { "source": "/order-success", "destination": "/public/order-success.html" },
     { "source": "/driver", "destination": "/public/driver.html" },
-    { "source": "/sw.js", "destination": "/public/sw.js" },
-    { "source": "/api/(.*)", "destination": "/api/$1" }
+    { "source": "/sw.js", "destination": "/public/sw.js" }
   ],
   "headers": [
     {
