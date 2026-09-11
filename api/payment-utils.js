@@ -88,8 +88,11 @@ function safeEqual(left, right) {
 }
 
 async function postKitchenWebhook(order) {
-  const webhookUrl = process.env.DISCORD_KITCHEN_WEBHOOK;
-  if (!webhookUrl || webhookUrl === 'Your-Info-Here') return;
+  const webhookUrl = String(process.env.DISCORD_KITCHEN_WEBHOOK || '').trim();
+  if (!webhookUrl || webhookUrl === 'Your-Info-Here') {
+    console.warn('Discord kitchen webhook is not configured.');
+    return false;
+  }
 
   try {
     const axios = require('axios');
@@ -130,9 +133,12 @@ async function postKitchenWebhook(order) {
           { type: 2, style: 5, label: 'Open Location', url: `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(mapQuery)}` }
         ]
       }]
-    });
+    }, { timeout: 10000 });
+    return true;
   } catch (error) {
-    console.error('Discord kitchen notification failed', error);
+    const status = error.response?.status ? ` (${error.response.status})` : '';
+    console.error(`Discord kitchen notification failed${status}:`, error.message);
+    return false;
   }
 }
 

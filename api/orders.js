@@ -1,13 +1,4 @@
-const admin = require('firebase-admin');
-
-function initializeFirebase() {
-  if (!admin.apps.length) {
-    admin.initializeApp({
-      projectId: process.env.FIREBASE_PROJECT_ID || 'friendsofmine'
-    });
-  }
-  return admin.firestore();
-}
+const { initializeFirestore } = require('./payment-utils');
 
 module.exports = async (req, res) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -20,17 +11,16 @@ module.exports = async (req, res) => {
   }
 
   try {
-    const deviceToken = (req.query && req.query.deviceToken) || 'guest';
-    const firestore = initializeFirebase();
+    const deviceToken = String((req.query && req.query.deviceToken) || 'guest');
+    const firestore = initializeFirestore();
     const snapshot = await firestore.collection('orders')
       .where('deviceToken', '==', deviceToken)
-      .orderBy('createdAt', 'desc')
       .get();
 
     const orders = snapshot.docs.map((doc) => ({
       id: doc.id,
       ...doc.data()
-    }));
+    })).sort((left, right) => String(right.createdAt || '').localeCompare(String(left.createdAt || '')));
 
     return res.status(200).json({
       success: true,
