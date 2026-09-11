@@ -1,6 +1,4 @@
 const crypto = require('crypto');
-const admin = require('firebase-admin');
-const axios = require('axios');
 
 function parseBody(req) {
   return typeof req.body === 'string' ? JSON.parse(req.body || '{}') : (req.body || {});
@@ -19,6 +17,7 @@ function requireEnv(name) {
 }
 
 function initializeFirestore() {
+  const admin = require('firebase-admin');
   if (!admin.apps.length) {
     const appOptions = { projectId: process.env.FIREBASE_PROJECT_ID || 'Your-Info-Here' };
     if (process.env.FIREBASE_SERVICE_ACCOUNT_JSON && process.env.FIREBASE_SERVICE_ACCOUNT_JSON !== 'Your-Info-Here') {
@@ -93,6 +92,7 @@ async function postKitchenWebhook(order) {
   if (!webhookUrl || webhookUrl === 'Your-Info-Here') return;
 
   try {
+    const axios = require('axios');
     const phone = String(order.customerPhone || '').replace(/[^\d+]/g, '');
     const mapQuery = order.lat && order.lng
       ? `${order.lat},${order.lng}`

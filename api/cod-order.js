@@ -1,18 +1,12 @@
 const {
-  createUniqueOrderCode,
   initializeFirestore,
   parseBody,
   postKitchenWebhook
 } = require('./payment-utils');
 const crypto = require('crypto');
 
-async function getCodOrderCode() {
-  try {
-    return await createUniqueOrderCode();
-  } catch (error) {
-    console.warn('Firestore unavailable for COD code reservation:', error.message);
-    return `FOM-${crypto.randomInt(10000, 100000)}`;
-  }
+function getCodOrderCode() {
+  return `FOM-${crypto.randomInt(10000, 100000)}`;
 }
 
 module.exports = async (req, res) => {
@@ -25,7 +19,7 @@ module.exports = async (req, res) => {
 
   try {
     const payload = parseBody(req);
-    const orderId = await getCodOrderCode();
+    const orderId = getCodOrderCode();
     const orderData = {
       orderId,
       customerName: payload.customerName || 'Guest Customer',

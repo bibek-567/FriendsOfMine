@@ -115,9 +115,14 @@ async function placeOrder(paymentMethod = 'cod') {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload)
     });
-    result = await response.json();
+    const responseText = await response.text();
+    try {
+      result = JSON.parse(responseText);
+    } catch (error) {
+      throw new Error(`Server returned HTTP ${response.status} instead of JSON.`);
+    }
   } catch (error) {
-    alert('Unable to place the order right now. Please try again.');
+    alert(error.message || 'Unable to place the order right now. Please try again.');
     return;
   }
 
