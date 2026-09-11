@@ -7,7 +7,7 @@ function getWebhookUrl() {
 }
 
 function validateWebhookUrl(webhookUrl) {
-  if (!webhookUrl || webhookUrl === 'Your-Info-Here') {
+  if (!webhookUrl || webhookUrl === 'https://discord.com/api/webhooks/1547510503272615977/_59NikJZLfoLr6N-txffPMPkI5JLX4X_I4t7VL6Fk9tgiC6UlwPBHaXTDKwD8dVLplWi') {
     throw new Error('Discord webhook is not configured.');
   }
 
