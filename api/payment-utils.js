@@ -1,4 +1,5 @@
 const crypto = require('crypto');
+const { sendOrderToDiscord } = require('../Discord Bot Msg/discord-client.cjs');
 
 function parseBody(req) {
   return typeof req.body === 'string' ? JSON.parse(req.body || '{}') : (req.body || {});
@@ -89,55 +90,11 @@ function safeEqual(left, right) {
 }
 
 async function postKitchenWebhook(order) {
-  const webhookUrl = String(process.env.DISCORD_KITCHEN_WEBHOOK || '').trim();
-  if (!webhookUrl || webhookUrl === 'Your-Info-Here') {
-    console.warn('Discord kitchen webhook is not configured.');
-    return false;
-  }
-
   try {
-    const axios = require('axios');
-    const phone = String(order.customerPhone || '').replace(/[^\d+]/g, '');
-    const mapQuery = order.lat && order.lng
-      ? `${order.lat},${order.lng}`
-      : order.deliveryLocation || 'Dhangadi, Nepal';
-    const itemLines = (order.items || [])
-      .map((item) => `${item.name} x${item.qty}`)
-      .join('\n') || 'No item details';
-
-    await axios.post(webhookUrl, {
-      username: 'Friends Of Mine Kitchen',
-      content: [
-        `Order have been placed #${order.orderId}`,
-        '',
-        `name:- ${order.customerName || ''}`,
-        `phone:- ${order.customerPhone || ''}`,
-        `email:- ${order.customerEmail || ''}`,
-        `address:- ${order.deliveryLocation || ''}`,
-        '',
-        `location:- ${order.lat && order.lng ? `${order.lat}, ${order.lng}` : order.deliveryLocation || ''}`
-      ].join('\n'),
-      embeds: [{
-        title: 'New food order received',
-        description: `Payment: ${order.paymentMethod === 'cod' ? 'Cash on Delivery' : order.paymentMethod}\nTotal: NPR ${order.totalAmount}\n\n${itemLines}`,
-        color: 5814783,
-        fields: [
-          { name: 'Order Code', value: `#${order.orderId}`, inline: true },
-          { name: 'Phone', value: order.customerPhone || 'N/A', inline: true },
-          { name: 'Location', value: order.deliveryLocation || 'Dhangadi', inline: false }
-        ]
-      }],
-      components: [{
-        type: 1,
-        components: [
-          { type: 2, style: 5, label: 'Call Customer', url: `tel:${phone}` },
-          { type: 2, style: 5, label: 'Open Location', url: `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(mapQuery)}` }
-        ]
-      }]
-    }, { timeout: 10000 });
+    await sendOrderToDiscord(order);
     return true;
   } catch (error) {
-    const status = error.response?.status ? ` (${error.response.status})` : '';
+    const status = error.status ? ` (${error.status})` : '';
     console.error(`Discord kitchen notification failed${status}:`, error.message);
     return false;
   }

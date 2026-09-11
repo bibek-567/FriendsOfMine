@@ -31,4 +31,4 @@ Do not commit `.env` or real merchant credentials.
 
 ## Discord order messages
 
-When a customer places a COD order, or a payment callback verifies an online order, the server sends the order code, customer details, payment method, total, delivery location, and item list to `DISCORD_KITCHEN_WEBHOOK`. Add a newly generated Discord webhook URL to the deployment environment variable. Do not commit webhook URLs because they grant access to the channel.
+When a customer places a COD order, or a payment callback verifies an online order, the server uses the shared `Discord Bot Msg/discord-client.cjs` core to send the order code, customer details, payment method, total, delivery location, and item list. Configure its webhook as the server-side `DISCORD_WEBHOOK_URL` environment variable. Do not commit webhook URLs because they grant access to the channel.
