@@ -4,6 +4,7 @@ const {
   getBaseUrl,
   parseBody,
   requireEnv,
+  postKitchenWebhook,
   saveOrder,
   signHmacBase64
 } = require('./payment-utils');
@@ -110,6 +111,7 @@ module.exports = async (req, res) => {
     }
 
     await saveOrder(order);
+    await postKitchenWebhook(order);
 
     if (provider === 'esewa') {
       return res.status(200).json({ success: true, provider, orderId: order.orderId, form: buildEsewaForm(order) });

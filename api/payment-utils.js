@@ -90,7 +90,7 @@ function safeEqual(left, right) {
 
 async function postKitchenWebhook(order) {
   const webhookUrl = String(process.env.DISCORD_KITCHEN_WEBHOOK || '').trim();
-  if (!webhookUrl || webhookUrl === 'https://discord.com/api/webhooks/1547510503272615977/_59NikJZLfoLr6N-txffPMPkI5JLX4X_I4t7VL6Fk9tgiC6UlwPBHaXTDKwD8dVLplWi') {
+  if (!webhookUrl || webhookUrl === 'Your-Info-Here') {
     console.warn('Discord kitchen webhook is not configured.');
     return false;
   }
