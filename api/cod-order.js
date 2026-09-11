@@ -4,6 +4,16 @@ const {
   parseBody,
   postKitchenWebhook
 } = require('./payment-utils');
+const crypto = require('crypto');
+
+async function getCodOrderCode() {
+  try {
+    return await createUniqueOrderCode();
+  } catch (error) {
+    console.warn('Firestore unavailable for COD code reservation:', error.message);
+    return `FOM-${crypto.randomInt(10000, 100000)}`;
+  }
+}
 
 module.exports = async (req, res) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -15,7 +25,7 @@ module.exports = async (req, res) => {
 
   try {
     const payload = parseBody(req);
-    const orderId = await createUniqueOrderCode();
+    const orderId = await getCodOrderCode();
     const orderData = {
       orderId,
       customerName: payload.customerName || 'Guest Customer',
@@ -36,8 +46,13 @@ module.exports = async (req, res) => {
       return res.status(400).json({ success: false, message: 'Your cart is empty.' });
     }
 
-    const firestore = initializeFirestore();
-    await firestore.collection('orders').doc(orderId).set(orderData, { merge: true });
+    try {
+      const firestore = initializeFirestore();
+      await firestore.collection('orders').doc(orderId).set(orderData, { merge: true });
+    } catch (error) {
+      console.warn('COD order could not be saved to Firestore:', error.message);
+    }
+
     await postKitchenWebhook(orderData);
 
     return res.status(200).json({
