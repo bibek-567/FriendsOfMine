@@ -48,21 +48,29 @@ function formatOrderMessage(order) {
     .map((item) => `${item.name || 'Item'} x${item.qty || 0}`)
     .join('\n') || 'No item details';
   const payment = order.paymentMethod === 'cod' ? 'Cash on Delivery' : order.paymentMethod || 'pending';
+  const status = String(order.status || 'pending').replace(/^\w/, (letter) => letter.toUpperCase());
   const location = order.lat && order.lng
     ? `${order.lat}, ${order.lng}`
     : order.deliveryLocation || 'Dhangadi, Nepal';
 
   return [
-    `New food order #${order.orderId || 'unknown'}`,
-    `Status: ${order.status || 'pending'}`,
-    `Payment: ${payment}`,
-    `Name: ${order.customerName || 'Guest Customer'}`,
-    `Phone: ${order.customerPhone || 'N/A'}`,
-    `Email: ${order.customerEmail || 'N/A'}`,
-    `Address: ${order.deliveryLocation || 'Dhangadi, Nepal'}`,
-    `Location: ${location}`,
-    `Total: NPR ${order.totalAmount || 0}`,
-    `Items:\n${items}`
+    '**__Order have been arrived__**',
+    `\`#${order.orderId || 'unknown'}\``,
+    '',
+    `**Status:-** ${status}`,
+    `**Payment:-** ${payment}`,
+    '',
+    `**Name:-** ${order.customerName || 'Guest Customer'}`,
+    `**Phone:-** ${order.customerPhone || 'N/A'}`,
+    `**Email:** ${order.customerEmail || 'N/A'}`,
+    `**Address:-** ${order.deliveryLocation || 'Dhangadi, Nepal'}`,
+    '',
+    `**Location:-** \`${location}\``,
+    '',
+    '`Items:`',
+    items,
+    '',
+    `**Total:** \`NPR ${order.totalAmount || 0}\``
   ].join('\n');
 }
 

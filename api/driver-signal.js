@@ -1,4 +1,4 @@
-const axios = require('axios');
+const { sendDiscordMessage } = require('../Discord Bot Msg/discord-client.cjs');
 
 module.exports = async (req, res) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -12,27 +12,19 @@ module.exports = async (req, res) => {
 
   try {
     const payload = typeof req.body === 'string' ? JSON.parse(req.body || '{}') : (req.body || {});
-    const webhookUrl = process.env.DISCORD_DRIVER_WEBHOOK;
+    const webhookUrl = process.env.DISCORD_DRIVER_WEBHOOK || process.env.DISCORD_WEBHOOK_URL;
     if (!webhookUrl || webhookUrl === 'Your-Info-Here') {
-      return res.status(503).json({ success: false, message: 'Driver Discord webhook is not configured.' });
+      return res.status(503).json({ success: false, message: 'Discord webhook is not configured.' });
     }
 
-    const message = {
-      username: 'Friends Of Mine Driver',
-      content: `🚚 Delivery tracking started for order ${payload.orderId || 'Unknown'}`,
-      embeds: [{
-        title: 'Driver signal received',
-        description: `Location: ${payload.location || 'Dhangadi'}\nDriver: ${payload.driverName || 'Driver'}\nStatus: ${payload.status || 'tracking'}`,
-        color: 3447003,
-        fields: [
-          { name: 'Latitude', value: String(payload.lat || 0), inline: true },
-          { name: 'Longitude', value: String(payload.lng || 0), inline: true },
-          { name: 'Order ID', value: String(payload.orderId || 'Unknown'), inline: false }
-        ]
-      }]
-    };
-
-    await axios.post(webhookUrl, message);
+    await sendDiscordMessage([
+      `Driver signal received for order ${payload.orderId || 'Unknown'}`,
+      `Location: ${payload.location || 'Dhangadi'}`,
+      `Driver: ${payload.driverName || 'Driver'}`,
+      `Status: ${payload.status || 'tracking'}`,
+      `Latitude: ${payload.lat || 0}`,
+      `Longitude: ${payload.lng || 0}`
+    ].join('\n'), webhookUrl);
 
     return res.status(200).json({
       success: true,
