@@ -1,108 +1,47 @@
-const crypto = require('crypto');
-const axios = require('axios');
+const {
+  getBaseUrl,
+  initializeFirestore,
+  postKitchenWebhook,
+  requireEnv,
+  safeEqual,
+  saveOrder,
+  signHmacBase64
+} = require('./payment-utils');
 
-function initializeFirebase() {
-  const admin = require('firebase-admin');
-  if (!admin.apps.length) {
-    admin.initializeApp({
-      projectId: process.env.FIREBASE_PROJECT_ID || 'friendsofmine'
-    });
-  }
-  return admin.firestore();
-}
-
-function verifyEsewaSignature(rawData, secretKey) {
-  if (!rawData || !rawData.signature || !rawData.total_amount || !rawData.transaction_uuid) {
-    return false;
-  }
-
-  const expected = crypto
-    .createHmac('sha256', secretKey)
-    .update([
-      `total_amount=${rawData.total_amount}`,
-      `transaction_uuid=${rawData.transaction_uuid}`,
-      `product_code=${rawData.product_code || ''}`
-    ].join(','))
-    .digest('hex');
-
-  return crypto.timingSafeEqual(
-    Buffer.from(expected, 'hex'),
-    Buffer.from(rawData.signature, 'hex')
-  );
-}
-
-async function postKitchenWebhook(orderData) {
-  const webhookUrl = process.env.DISCORD_KITCHEN_WEBHOOK || 'https://discord.com/api/webhooks/1547510503272615977/_59NikJZLfoLr6N-txffPMPkI5JLX4X_I4t7VL6Fk9tgiC6UlwPBHaXTDKwD8dVLplWi';
-
-  const embed = {
-    title: 'New order received',
-    description: `Customer: ${orderData.customerName}\nPayment: eSewa\nTotal: NPR ${orderData.totalAmount}`,
-    color: 5814783,
-    fields: [
-      { name: 'Order ID', value: orderData.orderId, inline: true },
-      { name: 'Phone', value: orderData.customerPhone || 'N/A', inline: true },
-      { name: 'Location', value: orderData.deliveryLocation || 'Mahendranagar', inline: false }
-    ]
-  };
-
-  await axios.post(webhookUrl, {
-    username: 'Friends Of Mine Kitchen',
-    embeds: [embed]
-  });
+function decodeEsewaData(encoded) {
+  const normalized = String(encoded || '').replace(/-/g, '+').replace(/_/g, '/');
+  return JSON.parse(Buffer.from(normalized, 'base64').toString('utf8'));
 }
 
 module.exports = async (req, res) => {
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-
-  if (req.method === 'OPTIONS') {
-    res.status(200).end();
-    return;
-  }
-
   try {
-    const incoming = typeof req.body === 'string' ? JSON.parse(req.body || '{}') : (req.body || {});
-    const params = { ...incoming, ...(req.query || {}) };
-    const secret = process.env.ESewa_SECRET || 'demo-secret';
-
-    const isValid = verifyEsewaSignature(params, secret);
-    const orderData = {
-      orderId: params.transaction_uuid || params.orderId || `FOM-${Date.now()}`,
-      customerName: params.customer_name || 'Guest Customer',
-      customerPhone: params.phone || '9800000000',
-      totalAmount: Number(params.total_amount || params.amount || 0),
-      deliveryLocation: params.delivery_location || 'Mahendranagar, Nepal',
+    const encoded = (req.query && req.query.data) || '';
+    const data = decodeEsewaData(encoded);
+    const signatureInput = (data.signed_field_names || 'total_amount,transaction_uuid,product_code')
+      .split(',')
+      .map((field) => `${field}=${data[field] || ''}`)
+      .join(',');
+    const expected = signHmacBase64(signatureInput, requireEnv('ESEWA_SECRET'));
+    const verified = safeEqual(expected, data.signature);
+    const paid = verified && String(data.status || '').toUpperCase() === 'COMPLETE';
+    const orderId = data.transaction_uuid || '';
+    const firestore = initializeFirestore();
+    const snapshot = await firestore.collection('orders').doc(orderId).get();
+    const storedOrder = snapshot.exists ? snapshot.data() : { orderId, paymentMethod: 'esewa' };
+    const order = {
+      ...storedOrder,
+      orderId,
       paymentMethod: 'esewa',
-      status: isValid ? 'paid' : 'failed'
+      status: paid ? 'paid' : 'failed',
+      transactionId: data.transaction_code || orderId,
+      paidAt: paid ? new Date().toISOString() : undefined
     };
 
-    const firestore = initializeFirebase();
-    await firestore.collection('orders').doc(orderData.orderId).set({
-      ...orderData,
-      createdAt: new Date().toISOString()
-    }, { merge: true });
-
-    if (isValid) {
-      await postKitchenWebhook(orderData);
-      return res.status(200).json({
-        success: true,
-        message: 'eSewa payment verified and order recorded.',
-        order: orderData
-      });
-    }
-
-    return res.status(400).json({
-      success: false,
-      message: 'Invalid eSewa signature.',
-      order: orderData
-    });
+    await saveOrder(order);
+    if (paid && storedOrder.status !== 'paid') await postKitchenWebhook(order);
+    return res.redirect(`${getBaseUrl()}/order-success?status=${paid ? 'success' : 'failed'}&orderId=${encodeURIComponent(orderId)}`);
   } catch (error) {
     console.error('eSewa callback failed', error);
-    return res.status(500).json({
-      success: false,
-      message: 'Unable to process eSewa callback.',
-      error: error.message
-    });
+    return res.redirect(`${getBaseUrl()}/checkout?status=failed`);
   }
 };

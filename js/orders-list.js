@@ -1,5 +1,5 @@
 function getDeviceToken() {
-  return localStorage.getItem('cafe_device_token') || 'guest';
+  return window.deviceTracker?.getDeviceToken() || localStorage.getItem('cafe_device_token') || 'guest';
 }
 
 async function loadOrders() {
@@ -16,7 +16,7 @@ async function loadOrders() {
 
     tableBody.innerHTML = result.orders.map((order) => `
       <tr>
-        <td>${order.orderId}</td>
+        <td>#${order.orderId}</td>
         <td>${order.customerName}</td>
         <td>${order.totalAmount || 0}</td>
         <td><span class="status-pill">${order.status || 'pending'}</span></td>

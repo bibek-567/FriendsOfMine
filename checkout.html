@@ -70,10 +70,15 @@
               <span>Total</span>
               <span id="checkoutTotal">NPR 0</span>
             </div>
-            <div style="display:flex; flex-direction:column; gap:12px; margin-top:16px;">
-              <button id="codButton" class="btn btn-primary" type="button">Pay on Delivery</button>
-              <button id="esewaButton" class="btn btn-secondary" type="button">Pay with eSewa</button>
-              <button id="khaltiButton" class="btn btn-secondary" type="button">Pay with Khalti</button>
+            <div class="payment-box">
+              <label for="paymentMethod">Choose payment method</label>
+              <select id="paymentMethod" name="paymentMethod">
+                <option value="cod">Cash on Delivery</option>
+                <option value="fonepay">Fonepay</option>
+                <option value="khalti">Khalti</option>
+                <option value="esewa">eSewa</option>
+              </select>
+              <button id="payNowButton" class="btn btn-primary" type="button">Pay Now</button>
             </div>
           </aside>
         </div>

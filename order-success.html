@@ -24,7 +24,7 @@
     <script src="js/tracker.js"></script>
     <script>
       const orderId = new URLSearchParams(window.location.search).get('orderId') || 'FOM-ORDER';
-      document.getElementById('trackingMap').innerHTML = '<div style="padding:24px;">Tracking order <strong>' + orderId + '</strong> will appear here with a live map and driver updates.</div>';
+      document.getElementById('trackingMap').innerHTML = '<div style="padding:24px;">Tracking order <strong>#' + orderId + '</strong> will appear here with a live map and driver updates.</div>';
     </script>
   </body>
 </html>

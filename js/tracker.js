@@ -28,4 +28,6 @@ function getCurrentLocation() {
   });
 }
 
+ensureDeviceToken();
+
 window.deviceTracker = { ensureDeviceToken, getDeviceToken, getCurrentLocation };

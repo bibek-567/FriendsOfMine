@@ -1,60 +1,42 @@
-const axios = require('axios');
-
-function initializeFirebase() {
-  const admin = require('firebase-admin');
-  if (!admin.apps.length) {
-    admin.initializeApp({
-      projectId: process.env.FIREBASE_PROJECT_ID || 'friendsofmine'
-    });
-  }
-  return admin.firestore();
-}
-
-async function postKitchenWebhook(orderData) {
-  const webhookUrl = process.env.DISCORD_KITCHEN_WEBHOOK || 'https://discord.com/api/webhooks/1547510503272615977/_59NikJZLfoLr6N-txffPMPkI5JLX4X_I4t7VL6Fk9tgiC6UlwPBHaXTDKwD8dVLplWi';
-
-  await axios.post(webhookUrl, {
-    username: 'Friends Of Mine Kitchen',
-    embeds: [{
-      title: 'Cash on delivery order received',
-      description: `Customer: ${orderData.customerName}\nPayment: COD\nTotal: NPR ${orderData.totalAmount}`,
-      color: 5814783,
-      fields: [
-        { name: 'Order ID', value: orderData.orderId, inline: true },
-        { name: 'Phone', value: orderData.customerPhone || 'N/A', inline: true },
-        { name: 'Location', value: orderData.deliveryLocation || 'Mahendranagar', inline: false }
-      ]
-    }]
-  });
-}
+const {
+  createUniqueOrderCode,
+  initializeFirestore,
+  parseBody,
+  postKitchenWebhook
+} = require('./payment-utils');
 
 module.exports = async (req, res) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
-  if (req.method === 'OPTIONS') {
-    res.status(200).end();
-    return;
-  }
+  if (req.method === 'OPTIONS') return res.status(200).end();
+  if (req.method !== 'POST') return res.status(405).json({ success: false, message: 'Method not allowed.' });
 
   try {
-    const payload = typeof req.body === 'string' ? JSON.parse(req.body || '{}') : (req.body || {});
-    const orderId = payload.orderId || `FOM-COD-${Date.now()}`;
+    const payload = parseBody(req);
+    const orderId = await createUniqueOrderCode();
     const orderData = {
       orderId,
       customerName: payload.customerName || 'Guest Customer',
       customerPhone: payload.customerPhone || '9800000000',
+      customerEmail: payload.customerEmail || '',
       deliveryLocation: payload.deliveryLocation || 'Mahendranagar, Nepal',
       totalAmount: Number(payload.totalAmount || payload.amount || 0),
       paymentMethod: 'cod',
       status: 'pending',
-      items: payload.items || [],
+      items: Array.isArray(payload.items) ? payload.items : [],
       deviceToken: payload.deviceToken || 'local-device',
+      lat: payload.lat || '',
+      lng: payload.lng || '',
       createdAt: new Date().toISOString()
     };
 
-    const firestore = initializeFirebase();
+    if (!orderData.totalAmount || !orderData.items.length) {
+      return res.status(400).json({ success: false, message: 'Your cart is empty.' });
+    }
+
+    const firestore = initializeFirestore();
     await firestore.collection('orders').doc(orderId).set(orderData, { merge: true });
     await postKitchenWebhook(orderData);
 

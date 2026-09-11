@@ -78,9 +78,10 @@ async function placeOrder(paymentMethod = 'cod') {
   const form = document.getElementById('checkoutForm');
   if (!form) return;
 
+  if (!form.reportValidity()) return;
+
   const formData = new FormData(form);
   const payload = {
-    orderId: `FOM-${Date.now()}`,
     customerName: formData.get('name') || 'Guest Customer',
     customerPhone: formData.get('phone') || '9800000000',
     customerEmail: formData.get('email') || '',
@@ -88,7 +89,7 @@ async function placeOrder(paymentMethod = 'cod') {
     paymentMethod,
     totalAmount: getOrderSummary().total,
     items: getOrderSummary().cart,
-    deviceToken: localStorage.getItem('cafe_device_token') || 'local-device',
+    deviceToken: window.deviceTracker?.getDeviceToken() || localStorage.getItem('cafe_device_token') || 'local-device',
     lat: formData.get('lat') || '',
     lng: formData.get('lng') || ''
   };
@@ -98,22 +99,51 @@ async function placeOrder(paymentMethod = 'cod') {
     return;
   }
 
-  const locationCheck = await validateDeliveryLocation();
-  if (!locationCheck.eligible) {
-    alert(locationCheck.reason);
+  if (paymentMethod !== 'cod') {
+    const locationCheck = await validateDeliveryLocation();
+    if (!locationCheck.eligible) {
+      alert(locationCheck.reason);
+      return;
+    }
+  }
+
+  const url = paymentMethod === 'cod' ? '/api/cod-order' : '/api/initiate-payment';
+  let result;
+  try {
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    result = await response.json();
+  } catch (error) {
+    alert('Unable to place the order right now. Please try again.');
     return;
   }
 
-  const url = paymentMethod === 'esewa' ? '/api/initiate-payment' : '/api/cod-order';
-  const response = await fetch(url, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(payload)
-  });
-
-  const result = await response.json();
   if (!result.success) {
     alert(result.message || 'Order failed.');
+    return;
+  }
+
+  if (result.redirectUrl) {
+    window.location.href = result.redirectUrl;
+    return;
+  }
+
+  if (result.form) {
+    const paymentForm = document.createElement('form');
+    paymentForm.method = 'POST';
+    paymentForm.action = result.form.action;
+    Object.entries(result.form.fields).forEach(([name, value]) => {
+      const input = document.createElement('input');
+      input.type = 'hidden';
+      input.name = name;
+      input.value = value;
+      paymentForm.appendChild(input);
+    });
+    document.body.appendChild(paymentForm);
+    paymentForm.submit();
     return;
   }
 
@@ -143,12 +173,9 @@ window.addEventListener('DOMContentLoaded', async () => {
     });
   }
 
-  const codBtn = document.getElementById('codButton');
-  if (codBtn) codBtn.addEventListener('click', () => placeOrder('cod'));
-
-  const esewaBtn = document.getElementById('esewaButton');
-  if (esewaBtn) esewaBtn.addEventListener('click', () => placeOrder('esewa'));
-
-  const khaltiBtn = document.getElementById('khaltiButton');
-  if (khaltiBtn) khaltiBtn.addEventListener('click', () => placeOrder('khalti'));
+  const payNowBtn = document.getElementById('payNowButton');
+  const paymentMethod = document.getElementById('paymentMethod');
+  if (payNowBtn && paymentMethod) {
+    payNowBtn.addEventListener('click', () => placeOrder(paymentMethod.value));
+  }
 });

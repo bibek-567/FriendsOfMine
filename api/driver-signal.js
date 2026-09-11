@@ -12,7 +12,10 @@ module.exports = async (req, res) => {
 
   try {
     const payload = typeof req.body === 'string' ? JSON.parse(req.body || '{}') : (req.body || {});
-    const webhookUrl = process.env.DISCORD_DRIVER_WEBHOOK || 'https://discord.com/api/webhooks/1547511218544312321/M_Uy6pYGyovNX5Qqgp9VoixmKBR9ggpDMhlV5SjSLNxU1nyaFhzkBQ9X5yYlu_oX0kLq';
+    const webhookUrl = process.env.DISCORD_DRIVER_WEBHOOK;
+    if (!webhookUrl || webhookUrl === 'Your-Info-Here') {
+      return res.status(503).json({ success: false, message: 'Driver Discord webhook is not configured.' });
+    }
 
     const message = {
       username: 'Friends Of Mine Driver',
