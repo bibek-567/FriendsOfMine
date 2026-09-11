@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Order Success | Friends Of Mine</title>
-    <link rel="stylesheet" href="/css/style.css" />
+    <link rel="stylesheet" href="css/style.css" />
   </head>
   <body>
     <main class="container" style="padding-top:60px; padding-bottom:80px;">
@@ -21,7 +21,7 @@
       </div>
     </main>
 
-    <script src="/js/tracker.js"></script>
+    <script src="js/tracker.js"></script>
     <script>
       const orderId = new URLSearchParams(window.location.search).get('orderId') || 'FOM-ORDER';
       document.getElementById('trackingMap').innerHTML = '<div style="padding:24px;">Tracking order <strong>' + orderId + '</strong> will appear here with a live map and driver updates.</div>';
