@@ -83,6 +83,7 @@ async function createOrder(payload, paymentMethod) {
     totalAmount: Number(payload.totalAmount || payload.amount || 0),
     paymentMethod,
     status: 'pending',
+    deliveryStatus: 'preparing',
     items: Array.isArray(payload.items) ? payload.items : [],
     deviceToken: payload.deviceToken || 'local-device',
     lat: payload.lat || '',

@@ -17,10 +17,16 @@ module.exports = async (req, res) => {
       .where('deviceToken', '==', deviceToken)
       .get();
 
-    const orders = snapshot.docs.map((doc) => ({
-      id: doc.id,
-      ...doc.data()
-    })).sort((left, right) => String(right.createdAt || '').localeCompare(String(left.createdAt || '')));
+    const orders = snapshot.docs.map((doc) => {
+      const order = { id: doc.id, ...doc.data() };
+      const isTracking = order.deliveryStatus === 'tracking';
+      return {
+        ...order,
+        driverLat: isTracking ? order.driverLat : undefined,
+        driverLng: isTracking ? order.driverLng : undefined,
+        driverLocationUpdatedAt: isTracking ? order.driverLocationUpdatedAt : undefined
+      };
+    }).sort((left, right) => String(right.createdAt || '').localeCompare(String(left.createdAt || '')));
 
     return res.status(200).json({
       success: true,

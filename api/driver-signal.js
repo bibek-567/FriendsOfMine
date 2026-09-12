@@ -1,3 +1,4 @@
+const { initializeFirestore } = require('./payment-utils');
 const { sendDiscordMessage } = require('../Discord Bot Msg/discord-client.cjs');
 
 module.exports = async (req, res) => {
@@ -12,18 +13,40 @@ module.exports = async (req, res) => {
 
   try {
     const payload = typeof req.body === 'string' ? JSON.parse(req.body || '{}') : (req.body || {});
-    const webhookUrl = process.env.DISCORD_DRIVER_WEBHOOK || process.env.DISCORD_WEBHOOK_URL;
+    const orderId = String(payload.orderId || '').trim();
+    const latitude = Number(payload.lat);
+    const longitude = Number(payload.lng);
+    if (!orderId || !Number.isFinite(latitude) || !Number.isFinite(longitude)) {
+      return res.status(400).json({ success: false, message: 'Order ID, latitude, and longitude are required.' });
+    }
+
+    const firestore = initializeFirestore();
+    const orderRef = firestore.collection('orders').doc(orderId);
+    const orderSnapshot = await orderRef.get();
+    if (!orderSnapshot.exists) {
+      return res.status(404).json({ success: false, message: 'Order not found.' });
+    }
+
+    await orderRef.set({
+      driverName: payload.driverName || 'Driver',
+      driverLat: latitude,
+      driverLng: longitude,
+      driverLocationUpdatedAt: new Date().toISOString(),
+      deliveryStatus: 'tracking'
+    }, { merge: true });
+
+    const webhookUrl = process.env.DISCORD_TRACK_WEBHOOK || process.env.DISCORD_DRIVER_WEBHOOK || process.env.DISCORD_WEBHOOK_URL;
     if (!webhookUrl || webhookUrl === 'Your-Info-Here') {
       return res.status(503).json({ success: false, message: 'Discord webhook is not configured.' });
     }
 
     await sendDiscordMessage([
-      `Driver signal received for order ${payload.orderId || 'Unknown'}`,
+      `Driver signal received for order ${orderId}`,
       `Location: ${payload.location || 'Dhangadi'}`,
       `Driver: ${payload.driverName || 'Driver'}`,
       `Status: ${payload.status || 'tracking'}`,
-      `Latitude: ${payload.lat || 0}`,
-      `Longitude: ${payload.lng || 0}`
+      `Latitude: ${latitude}`,
+      `Longitude: ${longitude}`
     ].join('\n'), webhookUrl);
 
     return res.status(200).json({

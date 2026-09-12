@@ -18,6 +18,15 @@ function formatItems(items) {
     .join('<br>');
 }
 
+function getDeliveryStatus(order) {
+  if (order.deliveryStatus === 'delivered') return 'Food is delivered';
+  if (order.deliveryStatus === 'tracking' && Number.isFinite(Number(order.driverLat)) && Number.isFinite(Number(order.driverLng))) {
+    const mapUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${order.driverLat},${order.driverLng}`)}`;
+    return `<a class="status-action" href="${mapUrl}" target="_blank" rel="noopener">View</a>`;
+  }
+  return 'Food is preparing';
+}
+
 async function loadOrders() {
   const tableBody = document.getElementById('ordersTableBody');
   if (!tableBody) return;
@@ -29,7 +38,7 @@ async function loadOrders() {
       throw new Error(result.message || 'Unable to fetch your orders.');
     }
     if (!result.success || !result.orders || !result.orders.length) {
-      tableBody.innerHTML = '<tr><td colspan="6">No orders yet.</td></tr>';
+      tableBody.innerHTML = '<tr><td colspan="7">No orders yet.</td></tr>';
       return;
     }
 
@@ -40,11 +49,12 @@ async function loadOrders() {
         <td>${formatItems(order.items)}</td>
         <td>${order.totalAmount || 0}</td>
         <td><span class="status-pill">${escapeHtml(order.status || 'pending')}</span></td>
+        <td>${getDeliveryStatus(order)}</td>
         <td>${new Date(order.createdAt || Date.now()).toLocaleString()}</td>
       </tr>
     `).join('');
   } catch (error) {
-    tableBody.innerHTML = `<tr><td colspan="6">${escapeHtml(error.message || 'Unable to load orders right now.')}</td></tr>`;
+    tableBody.innerHTML = `<tr><td colspan="7">${escapeHtml(error.message || 'Unable to load orders right now.')}</td></tr>`;
   }
 }
 

@@ -29,6 +29,7 @@ module.exports = async (req, res) => {
       totalAmount: Number(payload.totalAmount || payload.amount || 0),
       paymentMethod: 'cod',
       status: 'pending',
+      deliveryStatus: 'preparing',
       items: Array.isArray(payload.items) ? payload.items : [],
       deviceToken: payload.deviceToken || 'local-device',
       lat: payload.lat || '',

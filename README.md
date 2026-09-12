@@ -15,6 +15,8 @@ Static cafe ordering frontend with Vercel serverless payment adapters for eSewa,
 
 For local development, the server can read `fom-firebase.json` from the project root. This file is ignored by Git and must never be committed. For deployed orders, configure both `FIREBASE_PROJECT_ID` and `FIREBASE_SERVICE_ACCOUNT_JSON` in the hosting provider's server environment. The service-account value must be the complete JSON downloaded from Firebase; do not put it in frontend code or commit it to Git.
 
+Delivery commands use `DELIVERY_COMMAND_SECRET`, which must be shared only between the Discord bot and the deployed API. The bot sends `tracking` for `/start #ORDER_ID` and `delivered` for `/stop #ORDER_ID`.
+
 ## Provider notes
 
 - eSewa uses the signed v2 form flow and verifies the returned `data` signature.
@@ -33,4 +35,14 @@ Do not commit `.env` or real merchant credentials.
 
 ## Discord order messages
 
-When a customer places a COD order, or a payment callback verifies an online order, the server uses the shared `Discord Bot Msg/discord-client.cjs` core to send the order code, customer details, payment method, total, delivery location, and item list. Configure its webhook as the server-side `DISCORD_WEBHOOK_URL` environment variable. Do not commit webhook URLs because they grant access to the channel.
+When a customer places a COD order, or a payment callback verifies an online order, the server uses the shared `Discord Bot Msg/discord-client.cjs` core to send the order code, customer details, payment method, total, delivery location, and item list. Configure the order and tracking webhooks through environment variables. Never commit webhook URLs, bot tokens, or command secrets because they grant access to your Discord server and API.
+
+Keep these values only in Vercel environment variables and `Discord Bot Msg/.env`:
+
+- `DISCORD_ORDER_WEBHOOK`
+- `DISCORD_TRACK_WEBHOOK`
+- `DISCORD_BOT_TOKEN`
+- `DISCORD_GUILD_ID`
+- `DISCORD_TRACK_CHANNEL_ID`
+- `APP_API_URL`
+- `DELIVERY_COMMAND_SECRET`

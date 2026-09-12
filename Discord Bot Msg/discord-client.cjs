@@ -2,7 +2,7 @@ const { URL } = require('node:url');
 
 function getWebhookUrl() {
   return String(
-    process.env.DISCORD_WEBHOOK_URL || process.env.DISCORD_KITCHEN_WEBHOOK || ''
+    process.env.DISCORD_ORDER_WEBHOOK || process.env.DISCORD_WEBHOOK_URL || process.env.DISCORD_KITCHEN_WEBHOOK || ''
   ).trim();
 }
 

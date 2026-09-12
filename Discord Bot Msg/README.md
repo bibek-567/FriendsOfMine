@@ -11,8 +11,14 @@ The reusable sender is in `discord-client.cjs`. The production order APIs use th
 3. Put your Discord webhook URL in `.env`:
 
 ```env
-DISCORD_WEBHOOK_URL=https://discord.com/api/webhooks/...
+DISCORD_ORDER_WEBHOOK=https://discord.com/api/webhooks/...
+DISCORD_TRACK_WEBHOOK=https://discord.com/api/webhooks/...
 PORT=3000
+DISCORD_BOT_TOKEN=Your-Info-Here
+DISCORD_GUILD_ID=Your-Info-Here
+DISCORD_TRACK_CHANNEL_ID=Your-Info-Here
+APP_API_URL=https://YOUR_DOMAIN
+DELIVERY_COMMAND_SECRET=Your-Info-Here
 ```
 
 4. Start the app:
@@ -22,6 +28,8 @@ npm start
 ```
 
 The webhook is kept on the server. Send requests to the local API; the webhook URL is never exposed to clients.
+
+Use `DISCORD_ORDER_WEBHOOK` for the orderlist channel and `DISCORD_TRACK_WEBHOOK` for the ordertrack channel. Slash commands require a Discord bot application in addition to the webhooks. Invite the bot with the `bot` and `applications.commands` scopes, then use `/start order:FOM-31531` and `/stop order:FOM-31531` in the configured `DISCORD_TRACK_CHANNEL_ID`. The bot needs Manage Server permission, and `APP_API_URL` plus `DELIVERY_COMMAND_SECRET` must point to the deployed API.
 
 ### Endpoints
 

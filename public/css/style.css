@@ -392,6 +392,8 @@ button { -webkit-tap-highlight-color: transparent; }
 .orders-table tr:last-child td { border-bottom: 0; }
 
 .status-pill { display: inline-block; border-radius: 999px; padding: 0.35rem 0.7rem; background: var(--ocean-100); color: var(--ocean-900); font-size: 0.8rem; font-weight: 800; }
+.status-action { display: inline-flex; border-radius: 9px; padding: 0.42rem 0.72rem; background: var(--ocean-700); color: var(--white); font-size: 0.8rem; font-weight: 800; }
+.status-action:hover, .status-action:focus-visible { background: var(--ocean-900); }
 .map-shell { min-height: 320px; overflow: hidden; border: 1px solid rgba(8, 126, 164, 0.2); border-radius: 18px; background: #d9f3f8; }
 
 .site-footer {
