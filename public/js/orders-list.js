@@ -14,17 +14,22 @@ function escapeHtml(value) {
 function formatItems(items) {
   if (!Array.isArray(items) || !items.length) return 'No item details';
   return items
-    .map((item) => `${escapeHtml(item.name || 'Item')} x${Number(item.qty) || 0}`)
+    .map((item) => {
+      if (typeof item === 'string') return escapeHtml(item);
+      const name = item.name || item.title || item.productName || 'Item';
+      const quantity = item.qty ?? item.quantity ?? item.count ?? 0;
+      return `${escapeHtml(name)} x${Number(quantity) || 0}`;
+    })
     .join('<br>');
 }
 
 function getDeliveryStatus(order) {
-  if (order.deliveryStatus === 'delivered') return 'Food is delivered';
+  if (order.deliveryStatus === 'delivered') return 'Food is Delivered';
   if (order.deliveryStatus === 'tracking' && Number.isFinite(Number(order.driverLat)) && Number.isFinite(Number(order.driverLng))) {
     const mapUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${order.driverLat},${order.driverLng}`)}`;
     return `<a class="status-action" href="${mapUrl}" target="_blank" rel="noopener">View</a>`;
   }
-  return 'Food is preparing';
+  return 'Food is Preparing';
 }
 
 async function loadOrders() {
@@ -47,7 +52,7 @@ async function loadOrders() {
         <td>#${order.orderId}</td>
         <td>${escapeHtml(order.customerName || 'Guest Customer')}</td>
         <td>${formatItems(order.items)}</td>
-        <td>${order.totalAmount || 0}</td>
+        <td>NPR ${Number(order.totalAmount) || 0}</td>
         <td><span class="status-pill">${escapeHtml(order.status || 'pending')}</span></td>
         <td>${getDeliveryStatus(order)}</td>
         <td>${new Date(order.createdAt || Date.now()).toLocaleString()}</td>
@@ -59,3 +64,4 @@ async function loadOrders() {
 }
 
 document.addEventListener('DOMContentLoaded', loadOrders);
+setInterval(loadOrders, 10000);

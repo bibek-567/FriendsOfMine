@@ -130,10 +130,16 @@ function startDiscordCommandBot() {
     const orderId = interaction.options.getString('order', true).replace(/^#/, '').trim().toUpperCase();
     const deliveryStatus = interaction.commandName === 'start' ? 'tracking' : 'delivered';
     try {
+      await interaction.deferReply();
       await updateDeliveryStatus(orderId, deliveryStatus);
-      await interaction.reply(`Order #${orderId} is now ${deliveryStatus === 'tracking' ? 'live for tracking' : 'marked as delivered'}.`);
+      await interaction.editReply(`Order #${orderId} is now ${deliveryStatus === 'tracking' ? 'live for tracking' : 'marked as delivered'}.`);
     } catch (error) {
-      await interaction.reply({ content: error.message, ephemeral: true });
+      const message = error.message || 'Delivery status update failed.';
+      if (interaction.deferred || interaction.replied) {
+        await interaction.editReply(message);
+      } else {
+        await interaction.reply({ content: message, ephemeral: true });
+      }
     }
   });
 
