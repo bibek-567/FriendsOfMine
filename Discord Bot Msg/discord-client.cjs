@@ -25,15 +25,21 @@ function validateWebhookUrl(webhookUrl) {
   return parsedUrl;
 }
 
-async function sendDiscordMessage(message, webhookUrl = getWebhookUrl()) {
+async function sendDiscordMessage(message, webhookUrl = getWebhookUrl(), options = {}) {
   const parsedUrl = validateWebhookUrl(webhookUrl);
+  const payload = {
+    content: message,
+    allowed_mentions: { parse: [] }
+  };
+
+  if (Array.isArray(options.components) && options.components.length) {
+    payload.components = options.components;
+  }
+
   const response = await fetch(parsedUrl, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      content: message,
-      allowed_mentions: { parse: [] }
-    })
+    body: JSON.stringify(payload)
   });
 
   if (!response.ok) {
@@ -52,6 +58,8 @@ function formatOrderMessage(order) {
   const location = order.lat && order.lng
     ? `${order.lat}, ${order.lng}`
     : order.deliveryLocation || 'Dhangadi, Nepal';
+  const phone = String(order.customerPhone || '').trim();
+  const phoneLink = phone ? `[Call Customer](tel:${phone.replace(/[^\d+]/g, '')})` : 'N/A';
 
   return [
     '**__Order have been arrived__**',
@@ -61,26 +69,51 @@ function formatOrderMessage(order) {
     `**Payment:-** ${payment}`,
     '',
     `**Name:-** ${order.customerName || 'Guest Customer'}`,
-    `**Phone:-** ${order.customerPhone || 'N/A'}`,
     `**Email:** ${order.customerEmail || 'N/A'}`,
     `**Address:-** ${order.deliveryLocation || 'Dhangadi, Nepal'}`,
-    '',
-    `**Location:-** \`${location}\``,
     '',
     '`Items:`',
     items,
     '',
-    `**Total:** \`NPR ${order.totalAmount || 0}\``
+    `**Total:** \`NPR ${order.totalAmount || 0}\``,
+    '',
+    '**CONTACT:-**',
+    `**Location:-** \`${location}\``,
+    `**Phone:-** ${phoneLink}`
   ].join('\n');
 }
 
+function getLocationUrl(order) {
+  const query = order.lat && order.lng
+    ? `${order.lat},${order.lng}`
+    : order.deliveryLocation || '';
+
+  return query
+    ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}`
+    : '';
+}
+
 async function sendOrderToDiscord(order) {
-  await sendDiscordMessage(formatOrderMessage(order));
+  const locationUrl = getLocationUrl(order);
+  const components = locationUrl
+    ? [{
+        type: 1,
+        components: [{
+          type: 2,
+          style: 5,
+          label: 'Open Location',
+          url: locationUrl
+        }]
+      }]
+    : [];
+
+  await sendDiscordMessage(formatOrderMessage(order), getWebhookUrl(), { components });
   return true;
 }
 
 module.exports = {
   formatOrderMessage,
+  getLocationUrl,
   getWebhookUrl,
   sendDiscordMessage,
   sendOrderToDiscord,

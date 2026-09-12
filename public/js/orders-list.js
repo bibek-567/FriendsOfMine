@@ -25,6 +25,9 @@ async function loadOrders() {
   try {
     const response = await fetch('/api/orders?deviceToken=' + encodeURIComponent(getDeviceToken()));
     const result = await response.json();
+    if (!response.ok || !result.success) {
+      throw new Error(result.message || 'Unable to fetch your orders.');
+    }
     if (!result.success || !result.orders || !result.orders.length) {
       tableBody.innerHTML = '<tr><td colspan="6">No orders yet.</td></tr>';
       return;
@@ -41,7 +44,7 @@ async function loadOrders() {
       </tr>
     `).join('');
   } catch (error) {
-    tableBody.innerHTML = '<tr><td colspan="6">Unable to load orders right now.</td></tr>';
+    tableBody.innerHTML = `<tr><td colspan="6">${escapeHtml(error.message || 'Unable to load orders right now.')}</td></tr>`;
   }
 }
 

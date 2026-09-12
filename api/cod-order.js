@@ -40,12 +40,8 @@ module.exports = async (req, res) => {
       return res.status(400).json({ success: false, message: 'Your cart is empty.' });
     }
 
-    try {
-      const firestore = initializeFirestore();
-      await firestore.collection('orders').doc(orderId).set(orderData, { merge: true });
-    } catch (error) {
-      console.warn('COD order could not be saved to Firestore:', error.message);
-    }
+    const firestore = initializeFirestore();
+    await firestore.collection('orders').doc(orderId).set(orderData, { merge: true });
 
     await postKitchenWebhook(orderData);
 
