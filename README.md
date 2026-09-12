@@ -13,6 +13,8 @@ Static cafe ordering frontend with Vercel serverless payment adapters for eSewa,
    - Khalti: `https://YOUR_DOMAIN/api/khalti-callback`
    - Fonepay: `https://YOUR_DOMAIN/api/fonepay-callback`
 
+For local development, the server can read `fom-firebase.json` from the project root. This file is ignored by Git and must never be committed. For deployed orders, configure both `FIREBASE_PROJECT_ID` and `FIREBASE_SERVICE_ACCOUNT_JSON` in the hosting provider's server environment. The service-account value must be the complete JSON downloaded from Firebase; do not put it in frontend code or commit it to Git.
+
 ## Provider notes
 
 - eSewa uses the signed v2 form flow and verifies the returned `data` signature.

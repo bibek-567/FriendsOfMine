@@ -1,5 +1,6 @@
 .env
 .env.*
 !.env.example
+fom-firebase.json
 node_modules/
 .vercel/

@@ -54,7 +54,9 @@ module.exports = async (req, res) => {
     console.error('COD order processing failed', error);
     return res.status(500).json({
       success: false,
-      message: 'Unable to process cash on delivery order.',
+      message: error.message && error.message.startsWith('Firebase is not configured')
+        ? error.message
+        : 'Unable to process cash on delivery order.',
       error: error.message
     });
   }

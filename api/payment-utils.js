@@ -1,4 +1,6 @@
 const crypto = require('crypto');
+const fs = require('fs');
+const path = require('path');
 const { sendOrderToDiscord } = require('../Discord Bot Msg/discord-client.cjs');
 
 function parseBody(req) {
@@ -20,13 +22,34 @@ function requireEnv(name) {
 function initializeFirestore() {
   const admin = require('firebase-admin');
   if (!admin.apps.length) {
-    const appOptions = { projectId: process.env.FIREBASE_PROJECT_ID || 'Your-Info-Here' };
-    if (process.env.FIREBASE_SERVICE_ACCOUNT_JSON && process.env.FIREBASE_SERVICE_ACCOUNT_JSON !== 'Your-Info-Here') {
-      appOptions.credential = admin.credential.cert(JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT_JSON));
-    }
+    const serviceAccount = loadServiceAccount();
+    const projectId = process.env.FIREBASE_PROJECT_ID || serviceAccount.project_id;
+
+    const appOptions = {
+      projectId,
+      credential: admin.credential.cert(serviceAccount)
+    };
     admin.initializeApp(appOptions);
   }
   return admin.firestore();
+}
+
+function loadServiceAccount() {
+  const serviceAccountJson = process.env.FIREBASE_SERVICE_ACCOUNT_JSON;
+  if (serviceAccountJson && serviceAccountJson !== 'Your-Info-Here') {
+    try {
+      return JSON.parse(serviceAccountJson);
+    } catch {
+      throw new Error('Firebase is not configured: FIREBASE_SERVICE_ACCOUNT_JSON must be valid JSON.');
+    }
+  }
+
+  const localCredentialPath = path.join(__dirname, '..', 'fom-firebase.json');
+  try {
+    return JSON.parse(fs.readFileSync(localCredentialPath, 'utf8'));
+  } catch {
+    throw new Error('Firebase is not configured: set FIREBASE_SERVICE_ACCOUNT_JSON in the server environment.');
+  }
 }
 
 async function createUniqueOrderCode(payload = {}) {
